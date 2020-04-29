@@ -280,7 +280,8 @@ function State(props) {
                     stateDistrictWiseData={districtData}
                     stateTestData={testData}
                     isCountryLoaded={false}
-                    mapOptionProp={mapOption}
+                    setMapOption={setMapOption}
+                    mapOption={mapOption}
                   />
                 }
               </React.Fragment>
@@ -448,4 +449,4 @@ function State(props) {
   }
 }
 
-export default React.memo(State);
+export default State;

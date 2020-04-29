@@ -5,15 +5,27 @@ import {
 } from '../utils/commonfunctions';
 
 import {formatDistance} from 'date-fns';
+import equal from 'fast-deep-equal';
 import React, {useState, useEffect, useCallback} from 'react';
 import * as Icon from 'react-feather';
 import {Link} from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
 
-function Row(props) {
-  const [state, setState] = useState(props.state);
-  const [districts, setDistricts] = useState(props.districts);
-  const [sortedDistricts, setSortedDistricts] = useState(props.districts);
+const isEqual = (prevProps, currProps) => {
+  return true;
+};
+
+function Row({
+  onHighlightState,
+  onHighlightDistrict,
+  highlightedDistrict,
+  districts,
+  total,
+  state,
+  index,
+  key,
+}) {
+  const [sortedDistricts, setSortedDistricts] = useState(districts);
   const [showDistricts, setShowDistricts] = useState(false);
   const [sortData, setSortData] = useState({
     sortColumn: localStorage.getItem('district.sortColumn')
@@ -25,18 +37,8 @@ function Row(props) {
   });
 
   useEffect(() => {
-    setState(props.state);
-  }, [props.state]);
-
-  useEffect(() => {
-    setDistricts(props.districts);
-    setSortedDistricts(props.districts);
-  }, [props.districts]);
-
-  const handleReveal = () => {
-    props.handleReveal(props.state.state);
-    setShowDistricts(!showDistricts);
-  };
+    setSortedDistricts(districts);
+  }, [districts]);
 
   const handleTooltip = (e) => {
     e.stopPropagation();
@@ -96,20 +98,21 @@ function Row(props) {
   return (
     <React.Fragment>
       <tr
-        className={`state ${props.total ? 'is-total' : ''} ${
-          props.index % 2 === 0 ? 'is-odd' : ''
-        } ${props.isHighlighted ? 'is-highlighted' : ''}`}
-        onMouseEnter={() => props.onHighlightState?.(state, props.index)}
-        onMouseLeave={() => props.onHighlightState?.()}
-        onClick={!props.total ? handleReveal : null}
-        style={{background: props.index % 2 === 0 ? '#f8f9fa' : ''}}
+        className={`state ${total ? 'is-total' : ''} ${
+          index % 2 === 0 ? 'is-odd' : ''
+        }`}
+        onMouseEnter={() => onHighlightState(state, index)}
+        onClick={() => {
+          setShowDistricts(!showDistricts);
+        }}
+        style={{background: index % 2 === 0 ? '#f8f9fa' : ''}}
       >
         <td style={{fontWeight: 600}}>
           <div className="table__title-wrapper">
-            {!props.total && (
+            {!total && (
               <span
                 className={`dropdown ${
-                  props.reveal && showDistricts
+                  showDistricts && showDistricts
                     ? 'rotateRightDown'
                     : 'rotateDownRight'
                 }`}
@@ -193,15 +196,15 @@ function Row(props) {
                 <h6>Last updated&nbsp;</h6>
                 <h6
                   title={
-                    isNaN(Date.parse(formatDate(props.state.lastupdatedtime)))
+                    isNaN(Date.parse(formatDate(state.lastupdatedtime)))
                       ? ''
-                      : formatDateAbsolute(props.state.lastupdatedtime)
+                      : formatDateAbsolute(state.lastupdatedtime)
                   }
                 >
-                  {isNaN(Date.parse(formatDate(props.state.lastupdatedtime)))
+                  {isNaN(Date.parse(formatDate(state.lastupdatedtime)))
                     ? ''
                     : `${formatDistance(
-                        new Date(formatDate(props.state.lastupdatedtime)),
+                        new Date(formatDate(state.lastupdatedtime)),
                         new Date()
                       )} ago`}
                 </h6>
@@ -275,17 +278,15 @@ function Row(props) {
                 <tr
                   key={index}
                   className={`district ${index % 2 === 0 ? 'is-odd' : ''} ${
-                    props.highlightedDistrict === district
-                      ? 'is-highlighted'
-                      : ''
+                    highlightedDistrict === district ? 'is-highlighted' : ''
                   }`}
                   style={{
                     background: index % 2 === 0 ? '#f8f9fa' : '',
                   }}
                   onMouseEnter={() =>
-                    props.onHighlightDistrict?.(district, state, props.index)
+                    onHighlightDistrict?.(district, state, index)
                   }
-                  onMouseLeave={() => props.onHighlightDistrict?.()}
+                  onMouseLeave={() => onHighlightDistrict?.()}
                 >
                   <td className="unknown" style={{fontWeight: 600}}>
                     {district}
@@ -376,7 +377,7 @@ function Row(props) {
 
       <tr
         className={`spacer`}
-        style={{display: props.reveal && !props.total ? '' : 'none'}}
+        style={{display: showDistricts && !total ? '' : 'none'}}
       >
         <td></td>
         <td></td>
@@ -386,4 +387,4 @@ function Row(props) {
   );
 }
 
-export default React.memo(Row);
+export default React.memo(Row, isEqual);

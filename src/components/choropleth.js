@@ -4,9 +4,14 @@ import {MAP_TYPES} from '../constants';
 import {formatNumber} from '../utils/commonfunctions';
 
 import * as d3 from 'd3';
+import equal from 'fast-deep-equal';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import * as Icon from 'react-feather';
 import * as topojson from 'topojson';
+
+const isEqual = (prevProps, currProps) => {
+  return equal(prevProps.mapOption, currProps.mapOption);
+};
 
 const propertyFieldMap = {
   country: 'st_nm',
@@ -293,4 +298,4 @@ function ChoroplethMap({
   );
 }
 
-export default React.memo(ChoroplethMap);
+export default React.memo(ChoroplethMap, isEqual);

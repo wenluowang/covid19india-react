@@ -19,10 +19,11 @@ import {
 } from '../utils/commonfunctions';
 
 import axios from 'axios';
+import equal from 'fast-deep-equal';
 import React, {useState, useCallback} from 'react';
 import * as Icon from 'react-feather';
 import {Helmet} from 'react-helmet';
-import {useEffectOnce, useLocalStorage, useFavicon} from 'react-use';
+import {useEffectOnce, useLocalStorage} from 'react-use';
 
 function Home(props) {
   const [states, setStates] = useState([]);
@@ -33,11 +34,6 @@ function Home(props) {
   const [fetched, setFetched] = useState(false);
   const [activeStateCode, setActiveStateCode] = useState('TT');
   const [regionHighlighted, setRegionHighlighted] = useState(undefined);
-  const [rowHighlighted, setRowHighlighted] = useState({
-    statecode: undefined,
-    isDistrict: false,
-    districtName: undefined,
-  });
   const [showUpdates, setShowUpdates] = useState(false);
   const [anchor, setAnchor] = useState(null);
   const [lastViewedLog, setLastViewedLog] = useLocalStorage(
@@ -45,8 +41,7 @@ function Home(props) {
     null
   );
   const [newUpdate, setNewUpdate] = useLocalStorage('newUpdate', false);
-
-  useFavicon(newUpdate ? '/icon_update.png' : '/favicon.ico');
+  const [mapOption, setMapOption] = useState('confirmed');
 
   useEffectOnce(() => {
     getStates();
@@ -119,25 +114,13 @@ function Home(props) {
     setRegionHighlighted({state, index});
   };
 
-  const onHighlightDistrict = (district, state, index) => {
+  const onHighlightDistrict = useCallback((district, state, index) => {
     if (!state && !index && !district) return setRegionHighlighted(null);
     setRegionHighlighted({district, state, index});
-  };
+  }, []);
 
   const onMapHighlightChange = useCallback((region) => {
     setActiveStateCode(region.statecode);
-    if ('districtName' in region)
-      setRowHighlighted({
-        statecode: region.statecode,
-        isDistrict: true,
-        districtName: region.districtName,
-      });
-    else
-      setRowHighlighted({
-        statecode: region.statecode,
-        isDistrict: false,
-        districtName: undefined,
-      });
   }, []);
 
   return (
@@ -191,9 +174,7 @@ function Home(props) {
           {fetched && (
             <Table
               states={states}
-              summary={false}
-              stateDistrictWiseData={stateDistrictWiseData}
-              rowHighlighted={rowHighlighted}
+              districts={stateDistrictWiseData}
               onHighlightState={onHighlightState}
               onHighlightDistrict={onHighlightDistrict}
             />
@@ -213,6 +194,8 @@ function Home(props) {
                 isCountryLoaded={true}
                 anchor={anchor}
                 setAnchor={setAnchor}
+                mapOption={mapOption}
+                setMapOption={setMapOption}
               />
 
               {fetched && (

@@ -34,7 +34,8 @@ function MapExplorer({
   isCountryLoaded,
   anchor,
   setAnchor,
-  mapOptionProp,
+  mapOption,
+  setMapOption,
 }) {
   const [selectedRegion, setSelectedRegion] = useState({});
   const [panelRegion, setPanelRegion] = useState(getRegionFromState(states[0]));
@@ -43,7 +44,6 @@ function MapExplorer({
   );
   const [testObj, setTestObj] = useState({});
   const [currentMap, setCurrentMap] = useState(mapMeta);
-  const [mapOption, setMapOption] = useLocalStorage('mapOption', 'active');
 
   const [statistic, currentMapData] = useMemo(() => {
     const dataTypes = ['confirmed', 'active', 'recovered', 'deceased'];
@@ -126,10 +126,6 @@ function MapExplorer({
     },
     [states, stateDistrictWiseData, onMapHighlightChange]
   );
-
-  useEffect(() => {
-    if (mapOptionProp) setMapOption(mapOptionProp);
-  }, [mapOptionProp, setMapOption]);
 
   useEffect(() => {
     if (regionHighlighted === undefined || regionHighlighted === null) return;
@@ -376,4 +372,4 @@ function MapExplorer({
   );
 }
 
-export default React.memo(MapExplorer);
+export default MapExplorer;
