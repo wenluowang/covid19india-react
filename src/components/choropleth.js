@@ -23,6 +23,7 @@ function ChoroplethMap({
   setSelectedRegion,
   isCountryLoaded,
   mapOption,
+  setMapOption,
   statisticOption,
 }) {
   const choroplethMap = useRef(null);
@@ -306,4 +307,4 @@ function ChoroplethMap({
   );
 }
 
-export default React.memo(ChoroplethMap);
+export default ChoroplethMap;
